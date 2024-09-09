@@ -9,7 +9,7 @@ body{
 #board{
     width: 450px;
     height: 450px;
-     background-color: orange;
+     background-color: lightblue;
      border: 5px solid blueviolet;
      border-radius:  10px;
      margin: 0 auto;
