@@ -13,6 +13,7 @@ window.onload = function(){
     window.setInterval(function(){
         crushCandy();
         slideCandy();
+        generateCandy();
     },100);
 }
 //ramdom candy creation using candies array
@@ -63,7 +64,7 @@ function startGame(){
  }
  //swap candies using their src
  function dragEnd(){
-    //candies will not be swapped if they are blank
+    //candies will not be swapped if they are blank (edge case)
     if(currTile.src.includes("blank") || otherTile.src.includes("blank")){
         return;
     }
@@ -98,6 +99,7 @@ function startGame(){
     //crushFive() have to implement
     //crushFor() will implement soon
     crushThree();
+    documentment.getElementById("score").innerText = score;
  }
  function crushThree(){
     //check rows
@@ -111,6 +113,7 @@ function startGame(){
                 candy1.src = "/images/blank.png";
                 candy2.src = "/images/blank.png";
                 candy3.src = "/images/blank.png";
+                score+=20;
             }
         }
     }
@@ -125,6 +128,7 @@ function startGame(){
                 candy1.src = "/images/blank.png";
                 candy2.src = "/images/blank.png";
                 candy3.src = "/images/blank.png";
+                score+=20;
             }
         }
     }
@@ -165,11 +169,19 @@ function startGame(){
         for(let r= columns-1 ;r>=0; r--){
             if(!board[r][c].src.includes("blank")){
                 board[ind][c].src = board[r][c].src;
-                ind+=1;
+                ind-=1;
             }
         }
         for(let r=ind;r>=0;r--){
             board[r][c].src = "/images/blank.png";
+        }
+    }
+ }
+ 
+ function generateCandy(){
+    for(let c=0;c<columns;c++){
+        if(board[0][c].src.includes("blank")){
+            board[0][c].src="./images/" + randomCandy() + ".png";
         }
     }
  }
