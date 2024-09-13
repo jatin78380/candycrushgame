@@ -95,13 +95,37 @@ function startGame(){
         }
     }
  }
- function crushCandy(){
-    //crushFive() have to implement
-    //crushFor() will implement soon
-    crushThree();
-    documentment.getElementById("score").innerText = score;
- }
+ function crushCandy() {
+    let needToSlide = false;
+    
+    do {
+        needToSlide = false;
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < columns; c++) {
+                if (board[r][c].src.includes("Striped-Horizontal")) {
+                    activateStripedCandy(r, c, "horizontal");
+                    needToSlide = true;
+                } else if (board[r][c].src.includes("Striped-Vertical")) {
+                    activateStripedCandy(r, c, "vertical");
+                    needToSlide = true;
+                }
+            }
+        }
+        
+        if ( crushFour() || crushThree()) {
+            needToSlide = true;
+        }
+        
+        if (needToSlide) {
+            slideCandy();
+            generateCandy();
+        }
+    } while (needToSlide);
+
+    document.getElementById("score").innerText = score;
+}
  function crushThree(){
+    let crushed = false
     //check rows
     for(let r = 0;r<rows;r++){
         for(let c=0;c<columns -2 ;c++) // columns -2 because we have to check 3 candies
@@ -109,11 +133,12 @@ function startGame(){
             let candy1 = board[r][c];
             let candy2 = board [r][c+1];
             let candy3 = board[r][c+2];
-            if(candy1.src ==candy2.src && candy2.src == candy3.src && !candy1.src.includes("blank")){
+            if(candy1.src ==candy2.src && candy2.src == candy3.src && !candy1.src.includes("blank") && !candy1.src.includes("Striped")){
                 candy1.src = "/images/blank.png";
                 candy2.src = "/images/blank.png";
                 candy3.src = "/images/blank.png";
                 score+=20;
+                crushed = true;
             }
         }
     }
@@ -124,17 +149,69 @@ function startGame(){
             let candy1= board[r][c];
             let candy2 = board[r+1][c];
             let candy3 = board[r+2][c];
-            if(candy1.src ==candy2.src && candy2.src == candy3.src && !candy1.src.includes("blank")){
+            if(candy1.src ==candy2.src && candy2.src == candy3.src && !candy1.src.includes("blank") && !candy1.src.includes("Striped")){
                 candy1.src = "/images/blank.png";
                 candy2.src = "/images/blank.png";
                 candy3.src = "/images/blank.png";
                 score+=20;
+                crushed = true;
             }
         }
     }
+    return crushed;
+ }
+ 
+ //crushing 4 candies
+ function crushFour(){
+    //check rows
+    let crushed = false;
+    for(let r=0;r<rows;r++){
+        for(let c=0;c<columns-3;c++){
+            let candy1= board[r][c];
+            let candy2= board[r][c+1];
+            let candy3=board[r][c+2];
+            let candy4=board[r][c+3];
+            if(candy1.src ==candy2.src && candy2.src == candy3.src && candy3.src == candy4.src && !candy1.src.includes("blank") && !candy1.src.includes("Striped")){
+                // Get the color of the matched candies from the src
+                let color = candy1.src.split("/").pop().split(".")[0]; //extracting color name from "/images/blue.png"
+                console.log(`Crushing candies with color: ${color}`);
+                color = color.charAt(0).toUpperCase() + color.slice(1); // Capitalize first letter
+    // Replace candy1 with a special striped candy of the same color
+                candy1.src = "/images/" + color + "-Striped-Horizontal.png";
+                candy2.src = "/images/blank.png";
+                candy3.src = "/images/blank.png";
+                candy4.src = "/images/blank.png";
+                score+=40;
+                crushed = true;
+            }
+        }
+    }
+    //check columns
+    for(let c=0;c<columns;c++){
+        for(let r=0;r<rows-3;r++){
+            let candy1= board[r][c];
+            let candy2= board[r+1][c];
+            let candy3=board[r+2][c];
+            let candy4=board[r+3][c];
+            if(candy1.src ==candy2.src && candy2.src == candy3.src && candy3.src == candy4.src && !candy1.src.includes("blank") && !candy1.src.includes("Striped")  ){
+                 //get the color of the matched candies from the src
+            let color = candy1.src.split("/").pop().split(".")[0];
+            //replace candy1 with a special striped vertical candy of the same color
+            color = color.charAt(0).toUpperCase() + color.slice(1); 
+               candy1.src = "/images/" + color + "-Striped-Vertical.png";
+                candy2.src = "/images/blank.png";
+                candy3.src = "/images/blank.png";
+                candy4.src = "/images/blank.png";
+                score+=40;
+                crushed = true;
+            }
+        }
+    }
+
  }
 
  function checkValid(){
+    //check for 3 candy rows
     for(let r = 0;r<rows;r++){
         for(let c=0;c<columns -2 ;c++) // columns -2 because we have to check 3 candies
         {
@@ -145,9 +222,20 @@ function startGame(){
                 return true;
             }
         }
+        //check for 4 candy rows 
+        for(let c=0;c<columns-3;c++){
+            let candy1 = board[r][c];
+            let candy2 = board[r][c+1];
+            let candy3 = board[r][c+2];
+            let candy4 = board[r][c+3];
+            if(candy1.src ==candy2.src && candy2.src == candy3.src && candy3.src == candy4.src && !candy1.src.includes("blank")){
+                return true;
+        }
     }
+}
+//check for 4 candy rows 
 
-    //check columns
+    //check for 3 candy columns
     for(let c=0;c<columns;c++){
         for(let r=0;r< rows-2; r++){
             let candy1= board[r][c];
@@ -155,6 +243,16 @@ function startGame(){
             let candy3 = board[r+2][c];
             if(candy1.src ==candy2.src && candy2.src == candy3.src && !candy1.src.includes("blank")){
                return true;
+            }
+        }
+        //check for 4 candy columns
+        for(let r=0;r<rows-3;r++){
+            let candy1=board[r][c];
+            let candy2= board[r+1][c];
+            let candy3=board[r+2][c];
+            let candy4=board[r+3][c];
+            if(candy1.src ==candy2.src && candy2.src == candy3.src && candy3.src == candy4.src && !candy1.src.includes("blank")){
+                return true;
             }
         }
     }
@@ -166,7 +264,7 @@ function startGame(){
  function slideCandy(){
     for(let c=0; c<columns;c++){
         let ind=rows-1;
-        for(let r= columns-1 ;r>=0; r--){
+        for(let r= rows-1 ;r>=0; r--){
             if(!board[r][c].src.includes("blank")){
                 board[ind][c].src = board[r][c].src;
                 ind-=1;
@@ -181,7 +279,20 @@ function startGame(){
  function generateCandy(){
     for(let c=0;c<columns;c++){
         if(board[0][c].src.includes("blank")){
-            board[0][c].src="./images/" + randomCandy() + ".png";
+            board[0][c].src="/images/" + randomCandy() + ".png";
         }
     }
  }
+ function activateStripedCandy(r, c, direction) {
+    if (direction === "horizontal") {
+        for (let i = 0; i < columns; i++) {
+            board[r][i].src = "/images/blank.png";
+            score += 40;
+        }
+    } else if (direction === "vertical") {
+        for (let i = 0; i < rows; i++) {
+            board[i][c].src = "/images/blank.png";
+            score += 40;
+        }
+    }
+}
